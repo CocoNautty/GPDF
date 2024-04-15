@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
 
         # TODO: Step 1: use chromadb to find related text
         result = self.db.search_text(text, 1)
-        material = result[0]['documents'][0]
+        material = result['documents'][0][0]
 
         # TODO: Step 2: call gpt to generate answer
         ans = self.llm.send(text, material)

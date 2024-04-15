@@ -14,7 +14,7 @@ class database:
             self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
 
     def search_text(self, text, n):
-        result = self.collection.query(
+        return self.collection.query(
         query_texts=[text],
         n_results=n,
         )
