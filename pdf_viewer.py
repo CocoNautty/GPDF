@@ -3,6 +3,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, Q
 from PySide6.QtGui import QAction
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage
+from database import database
+from pdf_editor import pdf_editor
 
 class SearchLineEdit(QLineEdit):
     def __init__(self, main_window):
@@ -46,9 +48,11 @@ class MainWindow(QMainWindow):
 
     def open_file_dialog(self):
         file_dialog = QFileDialog()
-        filename, _ = file_dialog.getOpenFileName(self, "Open PDF", "", "PDF Files (*.pdf)")
-        if filename:
-            self.webView.setUrl(QUrl("file:///" + filename.replace('\\', '/')))
+        self.filename, _ = file_dialog.getOpenFileName(self, "Open PDF", "", "PDF Files (*.pdf)")
+        if self.filename:
+            self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
+            self.db = database(self.filename)
+        
 
     def search_text(self, text):
         flag = QWebEnginePage.FindFlag.FindCaseSensitively
@@ -58,10 +62,21 @@ class MainWindow(QMainWindow):
             self.webView.page().stopFinding()
 
         # TODO: Step 1: use chromadb to find related text
+        result = self.db.search_text(text, 5)
 
         # TODO: Step 2: call gpt to generate answer
 
         # TODO: Step 3: modify the pdf file to show the answer
+        ans = '...'
+        try:
+            self.webView.setUrl(QUrl(""))
+            pdf_editor(self.filename, self.filename, ans)
+            print("done")
+            self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
+        except Exception as e:
+            print("Error", e)
+
+
             
 if __name__ == '__main__':
     import sys

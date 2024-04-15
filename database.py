@@ -17,4 +17,4 @@ class database:
         result = self.collection.query(
         query_texts=[text],
         n_results=n,
-    )
+        )
