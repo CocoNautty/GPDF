@@ -1,1 +1,6 @@
 pyside6
+langchain
+pypdf
+chromadb
+pypdf2
+reportlab
