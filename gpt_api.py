@@ -8,13 +8,23 @@ class gpt_api(object):
         self.base_url = base_url
         self.model = model
         self.temperature = temperature
+        self.messages = []
 
-    def request_gpt(self, messages):
+    def init_prompt(self, system_message=None):
+        self.messages = []
+        if system_message is None:
+            system_message = "you are a cat girl, responding me with a meow at the end"
+        self.messages.append({"role":"system","content":system_message})
+
+    def append_prompt(self, message):
+        self.messages.append({"role":"user","content": message})
+    
+    def request_gpt(self):
         response = requests.post(self.base_url, 
                                 proxies = self.proxy, 
                                 headers={'Authorization': 'Bearer ' + self.api_key}, 
                                 json={"model": self.model, 
-                                    "messages": messages, 
+                                    "messages": self.messages, 
                                     "temperature": self.temperature})
         if response is None:
             for retries in range(0, 3):
@@ -23,14 +33,14 @@ class gpt_api(object):
                                         proxies = self.proxy, 
                                         headers={'Authorization': 'Bearer ' + self.api_key}, 
                                         json={"model": self.model, 
-                                            "messages": messages, 
+                                            "messages": self.messages, 
                                             "temperature": self.temperature})
                 if response is not None:
                     break
         response = response.json().get('choices')[0]["message"]["content"]
         return response
 
-# [{"role": "user", "content": "Say this is a test!"}]
+
 if __name__ == '__main__':
     api_key='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'
     proxy = {
@@ -44,12 +54,11 @@ if __name__ == '__main__':
     api_obj = gpt_api(api_key, proxy, base_url, model, temperature)
 
     while(1):
-        messages = []
         system_message = "you are an assistant robot trying to answer my questions"
-        messages.append({"role":"system","content":system_message})
+        api_obj.init_prompt()
         message = input("")
+        api_obj.append_prompt(message)
         if message == "exit":
             break
-        messages.append({"role":"user","content": message})
-        response = api_obj.request_gpt(messages)
+        response = api_obj.request_gpt()
         print(response)
