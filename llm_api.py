@@ -44,12 +44,9 @@ class llm_api(object):
 
 
 if __name__ == '__main__':
-    api_key='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'
-    proxy = {
-        'http': 'socks5h://127.0.0.1:7897',
-        'https': 'socks5h://127.0.0.1:7897'
-    }
-    base_url = 'https://api.openai.com/v1/chat/completions'
+    api_key='sk-8m4SzjD6Nobff6l6pGN6KFsoD2xfx6pKsWjyLTqfjPp69vzh'
+    proxy = None
+    base_url = 'https://api.chatanywhere.com.cn/v1/chat/completions'
     model = "gpt-3.5-turbo"
     temperature = 0.7
 
