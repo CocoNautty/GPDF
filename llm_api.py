@@ -10,7 +10,7 @@ class llm_api(object):
         self.temperature = temperature
         self.messages = []
     
-    def request_gpt(self):
+    def request_llm(self):
         response = requests.post(self.base_url, 
                                 proxies = self.proxy, 
                                 headers={'Authorization': 'Bearer ' + self.api_key}, 
@@ -37,7 +37,7 @@ class llm_api(object):
         self.messages.append({"role":"system","content":system_message})
         self.messages.append({"role":"user","content":prompt + "The following materials may be helpful: " + material})
         self.messages.append({"role":"assistant","content":"keep it short"})
-        response = self.request_gpt()
+        response = self.request_llm()
         self.messages = []
 
         return response
