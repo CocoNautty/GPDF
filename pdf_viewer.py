@@ -5,6 +5,8 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWebEngineCore import QWebEnginePage
 from database import database
 from pdf_editor import pdf_editor
+from gpt_api import gpt_api
+import os
 
 class SearchLineEdit(QLineEdit):
     def __init__(self, main_window):
@@ -39,6 +41,8 @@ class MainWindow(QMainWindow):
 
         self.create_file_menu()
 
+        self.llm = gpt_api(api_key='sk-P987o6CLnxdvaUt06KjVjaOOoxPc5kTTGHHyD6vEoRdvkQ7F', proxy={}, base_url='https://api.chatanywhere.tech', model='gpt-3.5-turbo', temperature=0.7)
+
     def create_file_menu(self):
         menubar = self.menuBar()
         file_menu = menubar.addMenu('Choose PDF')
@@ -55,6 +59,7 @@ class MainWindow(QMainWindow):
         
 
     def search_text(self, text):
+        self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
         flag = QWebEnginePage.FindFlag.FindCaseSensitively
         if text:
             self.webView.page().findText(text, flag)
@@ -69,10 +74,10 @@ class MainWindow(QMainWindow):
         # TODO: Step 3: modify the pdf file to show the answer
         ans = '...'
         try:
-            self.webView.setUrl(QUrl(""))
-            pdf_editor(self.filename, self.filename, ans)
+            pdf_editor(self.filename, './temp.pdf', ans)
             print("done")
-            self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
+            path=os.path.abspath('./temp.pdf')
+            self.webView.setUrl(QUrl("file:///" + path))
         except Exception as e:
             print("Error", e)
 

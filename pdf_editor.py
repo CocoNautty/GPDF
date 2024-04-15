@@ -16,25 +16,25 @@ def new_page(content, width=1920, height=1080):
     return packet
 
 def pdf_editor(source, target, content):
-    with open(source, 'rb') as pdf_file:
-        pdf_reader = PyPDF2.PdfReader(pdf_file)
-        pdf_writer = PyPDF2.PdfWriter()
+    pdf_file = open(source, 'rb')
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    pdf_writer = PyPDF2.PdfWriter()
 
-        for page_num in range(len(pdf_reader.pages)):
-            pdf_writer.add_page(pdf_reader.pages[page_num])
+    for page_num in range(len(pdf_reader.pages)):
+        pdf_writer.add_page(pdf_reader.pages[page_num])
 
-        page = pdf_reader.pages[len(pdf_reader.pages) - 1]
-        new_pdf = new_page(content, width=page.mediabox.width, height=page.mediabox.height)
-        new_content_page = PyPDF2.PdfReader(new_pdf).pages[0]
-        page.merge_page(new_content_page)
+    page = pdf_reader.pages[len(pdf_reader.pages) - 1]
+    new_pdf = new_page(content, width=page.mediabox.width, height=page.mediabox.height)
+    new_content_page = PyPDF2.PdfReader(new_pdf).pages[0]
+    page.merge_page(new_content_page)
 
-        pdf_writer.add_page(new_content_page)
-        # print("Added content to the last page")
+    pdf_writer.add_page(new_content_page)
 
-    with open(target, 'wb') as pdf_output_file:
-        # print("Writing to", target)
-        pdf_writer.write(pdf_output_file)
+    pdf_output_file = open(target, 'wb')
+    pdf_writer.write(pdf_output_file)
 
+    pdf_output_file.close()
+    pdf_file.close()
 
 def main():
     parser = argparse.ArgumentParser(description="PDF editor")
