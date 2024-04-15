@@ -8,6 +8,8 @@ from pdf_editor import pdf_editor
 from llm_api import llm_api
 import os
 
+os.environ['no_proxy'] = '*'
+
 class SearchLineEdit(QLineEdit):
     def __init__(self, main_window):
         super().__init__()
@@ -41,7 +43,7 @@ class MainWindow(QMainWindow):
 
         self.create_file_menu()
 
-        self.llm = llm_api(api_key='sk-P987o6CLnxdvaUt06KjVjaOOoxPc5kTTGHHyD6vEoRdvkQ7F', proxy={}, base_url='https://api.chatanywhere.tech', model='gpt-3.5-turbo', temperature=0.7)
+        self.llm = llm_api(api_key='sk-P987o6CLnxdvaUt06KjVjaOOoxPc5kTTGHHyD6vEoRdvkQ7F', proxy=None, base_url='https://api.chatanywhere.tech/v1/chat/completions', model='gpt-3.5-turbo', temperature=0.7)
 
     def create_file_menu(self):
         menubar = self.menuBar()
@@ -76,7 +78,7 @@ class MainWindow(QMainWindow):
         # TODO: Step 3: modify the pdf file to show the answer
         try:
             pdf_editor(self.filename, './temp.pdf', ans)
-            print("done")
+            # print("done")
             path=os.path.abspath('./temp.pdf')
             self.webView.setUrl(QUrl("file:///" + path))
         except Exception as e:
