@@ -8,10 +8,12 @@ class gpt_api(object):
         self.base_url = base_url
         self.model = model
         self.temperature = temperature
-        messages = []
-
-    def init_prompt(self, system_message):
         self.messages = []
+
+    def init_prompt(self, system_message=None):
+        self.messages = []
+        if system_message is None:
+            system_message = "you are a cat girl, responding me with a meow at the end"
         self.messages.append({"role":"system","content":system_message})
 
     def append_prompt(self, message):
@@ -53,7 +55,7 @@ if __name__ == '__main__':
 
     while(1):
         system_message = "you are an assistant robot trying to answer my questions"
-        api_obj.init_prompt(system_message)
+        api_obj.init_prompt()
         message = input("")
         api_obj.append_prompt(message)
         if message == "exit":
