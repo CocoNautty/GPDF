@@ -1,1 +1,3 @@
 pyside6
+pypdf2
+reportlab
