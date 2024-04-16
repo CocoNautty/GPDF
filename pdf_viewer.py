@@ -56,11 +56,25 @@ class MainWindow(QMainWindow):
         open_action.triggered.connect(self.open_file_dialog)
         file_menu.addAction(open_action)
 
+        model_menu = menubar.addMenu('Switch Model')
+        switch_gpt_action = QAction('Remote', self)
+        switch_gpt_action.triggered.connect(self.switch_model_remote)
+        model_menu.addAction(switch_gpt_action)
+        switch_gemma_action = QAction('Local', self)
+        switch_gemma_action.triggered.connect(self.switch_model_local)
+        model_menu.addAction(switch_gemma_action)
+
     def open_file_dialog(self):
         file_dialog = QFileDialog()
         self.filename, _ = file_dialog.getOpenFileName(self, "Open PDF", "", "PDF Files (*.pdf)")
         if self.filename:
             self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
+    
+    def switch_model_local(self):
+            self.llm = llm_api(api_key='sk-nPGsvecBylzkSoeEbrRQ7k9dXb2X2uc7iiFRYDSfchMd773h', proxy=None, base_url='http://localhost:11434/api/chat', model='gemma:7b', temperature=0.7)
+    
+    def switch_model_remote(self):
+            self.llm = llm_api(api_key='sk-nPGsvecBylzkSoeEbrRQ7k9dXb2X2uc7iiFRYDSfchMd773h', proxy=None, base_url='https://api.chatanywhere.tech/v1/chat/completions', model='gpt-3.5-turbo', temperature=0.7)
         
 
     def search_text(self, text):
@@ -81,7 +95,7 @@ class MainWindow(QMainWindow):
                 pdf_editor(self.filename, './files/temp.pdf', ans)
                 # print("done")
                 path=os.path.abspath('./files/temp.pdf')
-                self.webView.setUrl(QUrl("file:///" + path))
+                self.webView.setUrl(QUrl("file:///" + path.replace('\\', '/')))
             except Exception as e:
                 print("Error", e)
         else:

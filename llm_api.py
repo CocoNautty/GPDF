@@ -16,7 +16,8 @@ class llm_api(object):
                                 headers={'Authorization': 'Bearer ' + self.api_key}, 
                                 json={"model": self.model, 
                                     "messages": self.messages, 
-                                    "temperature": self.temperature})
+                                    "temperature": self.temperature,
+                                    "stream": False})
         if response is None:
             for retries in range(0, 3):
                 print("Didn't get response, retrying...[" + retries + "/3]")
@@ -25,10 +26,14 @@ class llm_api(object):
                                         headers={'Authorization': 'Bearer ' + self.api_key}, 
                                         json={"model": self.model, 
                                             "messages": self.messages, 
-                                            "temperature": self.temperature})
+                                            "temperature": self.temperature,
+                                            "stream": False})
                 if response is not None:
                     break
-        response = response.json().get('choices')[0]["message"]["content"]
+        if 'choices' in response.json():
+            response = response.json().get('choices')[0]["message"]["content"]
+        else:
+            response = response.json()["message"]["content"]
         return response
 
     def send(self, prompt, material, system_message=None):
