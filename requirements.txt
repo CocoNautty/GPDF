@@ -4,3 +4,4 @@ pypdf
 chromadb
 pypdf2
 reportlab
+openai
