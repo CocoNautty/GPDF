@@ -6,6 +6,7 @@ from PySide6.QtWebEngineCore import QWebEnginePage
 from database import database
 from pdf_editor import pdf_editor
 from llm_api import llm_api
+from ollm import ollm
 import os
 
 os.environ['no_proxy'] = '*'
@@ -43,7 +44,10 @@ class MainWindow(QMainWindow):
 
         self.create_file_menu()
 
-        self.llm = llm_api(api_key='sk-P987o6CLnxdvaUt06KjVjaOOoxPc5kTTGHHyD6vEoRdvkQ7F', proxy=None, base_url='https://api.chatanywhere.tech/v1/chat/completions', model='gpt-3.5-turbo', temperature=0.7)
+        self.db = database()
+
+        # self.llm = llm_api(api_key='sk-P987o6CLnxdvaUt06KjVjaOOoxPc5kTTGHHyD6vEoRdvkQ7F', proxy=None, base_url='https://api.chatanywhere.tech/v1/chat/completions', model='gpt-3.5-turbo', temperature=0.7)
+        self.ollm = ollm(api_key='ollama', proxy=None, base_url='http://localhost:11434/v1', model='gemma', temperature=0.7)
 
     def create_file_menu(self):
         menubar = self.menuBar()
@@ -57,32 +61,35 @@ class MainWindow(QMainWindow):
         self.filename, _ = file_dialog.getOpenFileName(self, "Open PDF", "", "PDF Files (*.pdf)")
         if self.filename:
             self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
-            self.db = database(self.filename)
         
 
     def search_text(self, text):
-        self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
-        flag = QWebEnginePage.FindFlag.FindCaseSensitively
-        if text:
-            self.webView.page().findText(text, flag)
+        
+        if '?' in text:
+            self.webView.setUrl(QUrl("file:///" + self.filename.replace('\\', '/')))
+            # TODO: Step 1: use chromadb to find related text
+            result_book = self.db.search_book(text, 2)
+            result_note = self.db.search_note(text, 1)
+            material = result_book['documents'][0][0] + result_book['documents'][0][1] + result_note['documents'][0][0]
+
+            # TODO: Step 2: call gpt to generate answer
+            # ans = self.llm.send(text, material)
+            ans = self.ollm.send(text, material)
+
+            # TODO: Step 3: modify the pdf file to show the answer
+            try:
+                pdf_editor(self.filename, './files/temp.pdf', ans)
+                # print("done")
+                path=os.path.abspath('./files/temp.pdf')
+                self.webView.setUrl(QUrl("file:///" + path))
+            except Exception as e:
+                print("Error", e)
         else:
-            self.webView.page().stopFinding()
-
-        # TODO: Step 1: use chromadb to find related text
-        result = self.db.search_text(text, 1)
-        material = result['documents'][0][0]
-
-        # TODO: Step 2: call gpt to generate answer
-        ans = self.llm.send(text, material)
-
-        # TODO: Step 3: modify the pdf file to show the answer
-        try:
-            pdf_editor(self.filename, './temp.pdf', ans)
-            # print("done")
-            path=os.path.abspath('./temp.pdf')
-            self.webView.setUrl(QUrl("file:///" + path))
-        except Exception as e:
-            print("Error", e)
+            flag = QWebEnginePage.FindFlag.FindCaseSensitively
+            if text:
+                self.webView.page().findText(text, flag)
+            else:
+                self.webView.page().stopFinding()
 
 
             
